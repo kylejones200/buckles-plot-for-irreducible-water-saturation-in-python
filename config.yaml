@@ -1,0 +1,11 @@
+data:
+  seed: 42
+model:
+  alpha: 0.5
+output:
+  figures_dir: images
+  figure_format: png
+  figure_dpi: 300
+  figsize:
+  - 8
+  - 8
