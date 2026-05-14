@@ -28,16 +28,6 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 # Set publication-quality defaults
-plt.rcParams['figure.dpi'] = 300
-plt.rcParams['savefig.dpi'] = 300
-plt.rcParams['font.size'] = 10
-plt.rcParams['font.family'] = 'sans-serif'
-plt.rcParams['axes.labelsize'] = 11
-plt.rcParams['axes.titlesize'] = 12
-plt.rcParams['xtick.labelsize'] = 9
-plt.rcParams['ytick.labelsize'] = 9
-plt.rcParams['legend.fontsize'] = 9
-plt.rcParams['axes.grid'] = False
 
 logger.info("Generating Buckles plot...")
 logger.info(f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
