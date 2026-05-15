@@ -5,37 +5,40 @@ Creates a porosity vs water saturation crossplot with BVW isolines.
 """
 
 import logging
-import numpy as np
-import matplotlib.pyplot as plt
 from datetime import datetime
-
-
 from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 def load_config(config_path=None):
     """Load configuration from YAML file."""
     if config_path is None:
-        config_path = Path(__file__).parent / 'config.yaml'
+        config_path = Path(__file__).parent / "config.yaml"
     if not config_path.exists():
         return {}
     with open(config_path) as _f:
         import yaml as _yaml
+
         return _yaml.safe_load(_f) or {}
 
+
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format='%(message)s')
+logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 # Set publication-quality defaults
 
 logger.info("Generating Buckles plot...")
 logger.info(f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
+
 def buckles_isoline(sw_range, bvw):
     """Calculate porosity for constant BVW isoline."""
     sw_safe = np.maximum(sw_range, 0.001)
     phi = bvw / sw_safe
     return np.clip(phi, 0, 0.4)
+
 
 # Generate synthetic well log data with realistic patterns
 np.random.seed(42)
@@ -73,7 +76,7 @@ sw_all = np.clip(sw_all, 0.0, 1.0)
 phi_all = np.clip(phi_all, 0.01, 0.35)
 
 # Create figure
-fig, ax = plt.subplots(figsize=tuple(config.get('output', {}).get('figsize', [8, 8])))
+fig, ax = plt.subplots(figsize=tuple(config.get("output", {}).get("figsize", [8, 8])))
 
 # Plot isolines
 sw_range = np.linspace(0.01, 1.0, 200)
@@ -82,42 +85,36 @@ bvw_cutoff = 0.04
 
 for bvw in bvw_lines:
     phi_line = buckles_isoline(sw_range, bvw)
-    
+
     if bvw == bvw_cutoff:
-        linestyle = '-'
+        linestyle = "-"
         linewidth = 1.2
         alpha = 1.0
-        label = f'BVW = {bvw:.3f} (cutoff)'
+        label = f"BVW = {bvw:.3f} (cutoff)"
     elif bvw < bvw_cutoff:
-        linestyle = ':'
+        linestyle = ":"
         linewidth = 0.9
         alpha = 0.7
-        label = f'BVW = {bvw:.3f}'
+        label = f"BVW = {bvw:.3f}"
     else:
-        linestyle = '--'
+        linestyle = "--"
         linewidth = 0.9
         alpha = 0.7
-        label = f'BVW = {bvw:.3f}'
-    
+        label = f"BVW = {bvw:.3f}"
+
     ax.plot(
         sw_range,
         phi_line,
-        color='black',
+        color="black",
         linestyle=linestyle,
         linewidth=linewidth,
         alpha=alpha,
-        label=label
+        label=label,
     )
 
 # Plot data points
 ax.scatter(
-    sw_all,
-    phi_all,
-    color='gray',
-    s=12,
-    alpha=0.5,
-    edgecolors='none',
-    label='Log data'
+    sw_all, phi_all, color="gray", s=12, alpha=0.5, edgecolors="none", label="Log data"
 )
 
 # Set linear scales
@@ -125,25 +122,23 @@ ax.set_xlim(0, 1.0)
 ax.set_ylim(0, 0.35)
 
 # Labels
-ax.set_xlabel('Water Saturation, Sw (fraction)', fontsize=11)
-ax.set_ylabel('Porosity, φ (fraction)', fontsize=11)
-ax.set_title('Buckles Plot', fontsize=12)
+ax.set_xlabel("Water Saturation, Sw (fraction)", fontsize=11)
+ax.set_ylabel("Porosity, φ (fraction)", fontsize=11)
+ax.set_title("Buckles Plot", fontsize=12)
 
 # Legend
-ax.legend(loc='upper right', frameon=False, fontsize=9)
+ax.legend(loc="upper right", frameon=False, fontsize=9)
 
 # Remove top and right spines
-ax.spines['top'].set_visible(False)
-ax.spines['right'].set_visible(False)
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
 
 # Light grid
-ax.grid(True, linestyle=':', linewidth=0.3, alpha=0.5)
+ax.grid(True, linestyle=":", linewidth=0.3, alpha=0.5)
 
 plt.tight_layout()
-plt.savefig('buckles_plot.png', dpi=300, bbox_inches='tight')
+plt.savefig("buckles_plot.png", dpi=300, bbox_inches="tight")
 plt.close()
 
 logger.info("Generated: buckles_plot.png")
 logger.info("Plot uses synthetic data for demonstration.\n")
-
-
