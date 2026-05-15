@@ -8,7 +8,6 @@ import logging
 import numpy as np
 import matplotlib.pyplot as plt
 from datetime import datetime
-import yaml
 
 
 from pathlib import Path
