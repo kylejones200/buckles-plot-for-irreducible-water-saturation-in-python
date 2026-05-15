@@ -39,7 +39,7 @@ def buckles_isoline(sw_range, bvw):
     return np.clip(phi, 0, 0.4)
 
 # Generate synthetic well log data with realistic patterns
-np.random.seed(config.get('data', {}).get('seed', 42))
+np.random.seed(42)
 n_samples = 300
 
 # Create three zones with different characteristics
