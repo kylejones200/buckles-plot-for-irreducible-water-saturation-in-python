@@ -275,3 +275,6 @@ def main() -> Path:
     logger.info("Generated: %s", out_path)
     logger.info(note)
     return out_path
+
+if __name__ == "__main__":
+    main()
