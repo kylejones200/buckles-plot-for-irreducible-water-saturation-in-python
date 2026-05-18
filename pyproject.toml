@@ -3,8 +3,10 @@ name = "buckles-plot"
 version = "0.1.0"
 description = "Buckles plot for irreducible water saturation (porosity vs Sw with BVW isolines)"
 readme = "article.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 dependencies = [
+    "pydantic>=2.10.0",
+    "pytest>=8.0",
     "matplotlib>=3.8",
     "numpy>=1.26",
     "PyYAML>=6.0",
@@ -19,3 +21,7 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["buckles_plot"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

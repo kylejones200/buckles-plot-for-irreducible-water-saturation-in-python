@@ -88,7 +88,6 @@ def _read_csv_rows(path: Path) -> list[dict[str, str]]:
 def rottweiler_dataset(csv_path: Path | None = None) -> BucklesDataset:
     """
     KGS PfEFFER Rottweiler Sandstone (zones A–J).
-
     https://www.kgs.ku.edu/software/PfEFFER-java/HELP/PfEFFER/Pfeffer-theory2.html
     https://www.kgs.ku.edu/software/PfEFFER-java/HELP/PfEFFER/Pfeffer-theory4.html
     """
@@ -98,7 +97,9 @@ def rottweiler_dataset(csv_path: Path | None = None) -> BucklesDataset:
     sw = np.array([float(r["sw"]) for r in rows])
     labels = np.array([r["zone"] for r in rows])
     zone_types = np.array([r["zone_type"] for r in rows])
-    return BucklesDataset(phi=phi, sw=sw, labels=labels, zone_types=zone_types, units="fraction")
+    return BucklesDataset(
+        phi=phi, sw=sw, labels=labels, zone_types=zone_types, units="fraction"
+    )
 
 
 def aapg_dataset() -> BucklesDataset:
@@ -155,7 +156,16 @@ def _plot_bvw_isolines_fraction(
 def plot_buckles_fraction(ax: plt.Axes, data: BucklesDataset) -> None:
     """Article layout: Sw on x, porosity on y (fractions)."""
     _plot_bvw_isolines_fraction(ax, [0.02, 0.04, 0.06, 0.08, 0.10, 0.15, 0.20])
-    ax.scatter(data.sw, data.phi, s=12, c="0.45", alpha=0.5, edgecolors="none", label="Log data", zorder=5)
+    ax.scatter(
+        data.sw,
+        data.phi,
+        s=12,
+        c="0.45",
+        alpha=0.5,
+        edgecolors="none",
+        label="Log data",
+        zorder=5,
+    )
     ax.set_xlabel("Water Saturation, Sw (fraction)")
     ax.set_ylabel("Porosity, φ (fraction)")
     ax.set_xlim(0, 1.0)
@@ -165,8 +175,9 @@ def plot_buckles_fraction(ax: plt.Axes, data: BucklesDataset) -> None:
 
 def plot_buckles_rottweiler(ax: plt.Axes, data: BucklesDataset) -> None:
     """KGS PfEFFER Figure 11 style (Sw–porosity, fraction scales)."""
-    _plot_bvw_isolines_fraction(ax, ROTTWEILER_BVW_ISOLINES, highlight=ROTTWEILER_BVW_HIGHLIGHT)
-
+    _plot_bvw_isolines_fraction(
+        ax, ROTTWEILER_BVW_ISOLINES, highlight=ROTTWEILER_BVW_HIGHLIGHT
+    )
     assert data.zone_types is not None and data.labels is not None
     for ztype in ("pay", "transition", "water"):
         mask = data.zone_types == ztype
@@ -182,7 +193,14 @@ def plot_buckles_rottweiler(ax: plt.Axes, data: BucklesDataset) -> None:
         )
 
     for label, phi, sw in zip(data.labels, data.phi, data.sw, strict=True):
-        ax.annotate(str(label), (sw, phi), xytext=(4, 4), textcoords="offset points", fontsize=10, fontweight="bold")
+        ax.annotate(
+            str(label),
+            (sw, phi),
+            xytext=(4, 4),
+            textcoords="offset points",
+            fontsize=10,
+            fontweight="bold",
+        )
 
     ax.set_xlabel("Water Saturation, Sw (fraction)")
     ax.set_ylabel("Porosity, φ (fraction)")
@@ -201,10 +219,18 @@ def plot_buckles_aapg(ax: plt.Axes, data: BucklesDataset) -> None:
         idx = len(sw_range[mask]) // 2
         ax.text(sw_range[mask][idx], phi_line[mask][idx], str(bvw), fontsize=8)
 
-    ax.axvline(AAPG_CRITICAL_SW_PCT, color="0.35", linestyle="--", linewidth=0.9, label="Critical Sw")
+    ax.axvline(
+        AAPG_CRITICAL_SW_PCT,
+        color="0.35",
+        linestyle="--",
+        linewidth=0.9,
+        label="Critical Sw",
+    )
     ax.scatter(data.sw, data.phi, s=40, c="0.15", zorder=5)
     for label, phi, sw in zip(data.labels, data.phi, data.sw, strict=True):
-        ax.annotate(str(label), (sw, phi), xytext=(3, 3), textcoords="offset points", fontsize=9)
+        ax.annotate(
+            str(label), (sw, phi), xytext=(3, 3), textcoords="offset points", fontsize=9
+        )
 
     ax.set_xlabel("Water Saturation, Sw (%)")
     ax.set_ylabel("Porosity (%)")
@@ -235,7 +261,6 @@ SOURCES: dict[str, tuple] = {
 def main() -> Path:
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     config = load_config()
-
     source = config.get("data", {}).get("source", "rottweiler")
     seed = config.get("data", {}).get("seed", 42)
     output_cfg = config.get("output", {})
@@ -247,23 +272,19 @@ def main() -> Path:
     figures_dir.mkdir(parents=True, exist_ok=True)
     ext = output_cfg.get("figure_format", "png")
     out_path = figures_dir / f"buckles_plot_{source}.{ext}"
-
     if source not in SOURCES:
         allowed = ", ".join(sorted(SOURCES))
         raise ValueError(f"Unknown data.source: {source!r} (use {allowed})")
 
     loader, plot_fn, note = SOURCES[source]
     data = loader(seed=seed) if source == "synthetic" else loader()
-
     logger.info("Generating Buckles plot (%s)...", source)
     logger.info("Timestamp: %s", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-
     title = {
         "rottweiler": "Buckles Plot — Rottweiler Sandstone (KGS PfEFFER)",
         "aapg": "Buckles Plot — AAPG Example",
         "synthetic": "Buckles Plot",
     }[source]
-
     fig, ax = plt.subplots(figsize=figsize)
     plot_fn(ax, data)
     ax.set_title(title, fontsize=12)
@@ -271,10 +292,10 @@ def main() -> Path:
     fig.tight_layout()
     fig.savefig(out_path, dpi=dpi, bbox_inches="tight")
     plt.close(fig)
-
     logger.info("Generated: %s", out_path)
     logger.info(note)
     return out_path
+
 
 if __name__ == "__main__":
     main()
